@@ -736,6 +736,7 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Modifiez cette fonction dans votre code
 function generateLink() {
     const title = document.getElementById('title').value.trim();
     const meetingType = document.getElementById('meetingType').value;
@@ -792,13 +793,25 @@ function generateLink() {
         return;
     }
 
-    const startISO = startDate.toISOString();
-    const endISO = endDate.toISOString();
-    const outlookLink = `https://outlook.office.com/calendar/0/deeplink/compose?subject=${encodeURLParam(title)}&body=${encodeURLParam(meetingDescription)}&startdt=${startISO}&enddt=${endISO}&location=${encodeURLParam(location)}`;
+    // CORRECTION ICI: Utilisez les chaînes de date/heure formatées au lieu de ISO pour préserver le fuseau horaire
+    function formatOutlookDateTime(date) {
+        // Format: YYYY-MM-DDTHH:MM:SS
+        return date.getFullYear() + '-' +
+               String(date.getMonth() + 1).padStart(2, '0') + '-' +
+               String(date.getDate()).padStart(2, '0') + 'T' +
+               String(date.getHours()).padStart(2, '0') + ':' +
+               String(date.getMinutes()).padStart(2, '0') + ':' +
+               String(date.getSeconds()).padStart(2, '0');
+    }
+    
+    const startFormatted = formatOutlookDateTime(startDate);
+    const endFormatted = formatOutlookDateTime(endDate);
+    
+    const outlookLink = `https://outlook.office.com/calendar/0/deeplink/compose?subject=${encodeURLParam(title)}&body=${encodeURLParam(meetingDescription)}&startdt=${startFormatted}&enddt=${endFormatted}&location=${encodeURLParam(location)}`;
 
-    // Format Apple iCal date format
-    const iCalStart = startISO.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const iCalEnd = endISO.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    // Pour le format iCal, nous devons utiliser UTC
+    const iCalStart = startDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const iCalEnd = endDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Foncia//Meeting Generator//FR
